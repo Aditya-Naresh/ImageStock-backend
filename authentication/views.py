@@ -1,11 +1,17 @@
 from .models import User
+from django.contrib.auth import authenticate
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
-from .serializers import UserSerializer, EmailVerificationSerializer
+from rest_framework.authtoken.models import Token
+from .serializers import (
+    UserSerializer,
+    EmailVerificationSerializer,
+    LoginSerializer,
+)
 
 # Create your views here.
 
@@ -58,3 +64,30 @@ class EmailConfirmationView(APIView):
                 {"message": "Invalid link or user does not exist."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+
+class LoginView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+        if serializer.is_valid():
+            user = authenticate(
+                email=serializer.validated_data.get("email"),
+                password=serializer.validated_data.get("password"),
+            )
+
+            if user:
+                token, created = Token.objects.get_or_create(user=user)
+                return Response(
+                    {
+                        "user": LoginSerializer(user).data,
+                        "token": token.key,
+                    }
+                )
+
+        print("Authentication failed")
+        return Response(
+            {"message": "Invalid credentials"},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
