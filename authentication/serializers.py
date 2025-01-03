@@ -61,3 +61,39 @@ class LoginSerializer(serializers.Serializer):
     class Meta:
         model = User
         fields = "__all__"
+
+
+class PasswordResetSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        if not User.objects.filter(email=value).exists():
+            raise serializers.ValidationError(
+                detail="""If the email is registered,
+                you will receive a password reset link."""
+            )
+        return value
+
+
+class SetNewPasswordSerializer(serializers.Serializer):
+    password = serializers.CharField(
+        min_length=8,
+        max_length=60,
+        write_only=True,
+    )
+    confirm_password = serializers.CharField(
+        min_length=8,
+        max_length=60,
+        write_only=True,
+    )
+    uid = serializers.CharField(write_only=True)
+    token = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        password = data.get("password")
+        confirm_password = data.get("confirm_password")
+
+        if password != confirm_password:
+            raise serializers.ValidationError("Passwords do not match.")
+
+        return data

@@ -9,13 +9,11 @@ import environ
 
 env = environ.Env(DEBUG=(bool, False))
 environ.Env.read_env()
+FRONTEND = env("FRONTEND")
 
 
 @shared_task(bind=True, max_retries=3, default_retry_delay=60)
 def send_verification_email(self, user_id):
-    print("Send verification email:")
-    FRONTEND = env("FRONTEND")
-
     try:
         user = User.objects.get(id=user_id)
     except User.DoesNotExist:
@@ -38,10 +36,42 @@ def send_verification_email(self, user_id):
         "from_email": settings.EMAIL_HOST_USER,
         "to_email": user.email,
     }
-    print(data)
     try:
         send_normal_email(data)
     except Exception as e:
         self.retry(exc=e)
         print(f"Error sending email: {e}")
 
+
+@shared_task(bind=True, max_retries=3, default_retry_delay=60)
+def send_password_reset_link(self, email):
+    try:
+        user = User.objects.get(email=email)
+    except User.DoesNotExist:
+        return
+
+    token = default_token_generator.make_token(user)
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    reset_link = f"{FRONTEND}/reset-password/{uid}/{token}"
+
+    message = f"""
+        Hi{user.name},
+        We received a request for password reset link,
+        You can use the link below to redirect you to the password reset page:
+        {reset_link}
+        If you did not request this, please ignore this email.
+        Thank you!
+    """
+
+    data = {
+        "email_subject": "Forgot password?",
+        "email_body": message,
+        "from_email": settings.EMAIL_HOST_USER,
+        "to_email": user.email,
+    }
+
+    try:
+        send_normal_email(data)
+    except Exception as e:
+        self.retry(exc=e)
+        print(f"Error sending email: {e}")
