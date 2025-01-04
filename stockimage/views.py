@@ -1,7 +1,7 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.db import transaction
 from .models import Image
 from .serializers import ImageSerializer
@@ -10,7 +10,7 @@ from .serializers import ImageSerializer
 class ImageViewSet(viewsets.ModelViewSet):
     serializer_class = ImageSerializer
     permission_classes = [permissions.IsAuthenticated]
-    parser_classes = (MultiPartParser, FormParser)
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
 
     def get_queryset(self):
         return Image.objects.filter(
@@ -40,7 +40,8 @@ class ImageViewSet(viewsets.ModelViewSet):
                     "title": title,
                 }
                 for image, title in zip(images, titles)
-            ], many=True
+            ],
+            many=True,
         )
 
         if not serialzer.is_valid():
@@ -62,28 +63,43 @@ class ImageViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["patch"])
     def reorder(self, request):
-        ordered_images = request.data("ordered_images", [])
-        with transaction.atomic():
-            for index, image_data in enumerate(ordered_images):
-                image = Image.objects.get(
-                    id=image_data["id"],
-                    user=request.user,
-                )
-                image.order = index
-                image.save()
-        return Response({"status": "Images reordered successfully"})
+        try:
+            ordered_images = request.data.get("ordered_images", [])
+            print("ordered_images: ", ordered_images)
+            with transaction.atomic():
+                for index, image_id in enumerate(ordered_images):
+                    image = Image.objects.get(
+                        id=image_id["id"],
+                        user=request.user,
+                    )
+                    image.order = index
+                    image.save()
+            return Response({"status": "Images reordered successfully"})
+        except Exception as e:
+            print("Exception happend: ", e)
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
     def update(self, request, *args, **kwargs):
-        partial = kwargs.pop("partial", True)
-        instance = self.get_object()
-        serializer = self.get_serializer(
-            instance,
-            data=request.data,
-            partial=partial,
-        )
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        try:
+            print("request", request.data)
+            partial = kwargs.pop("partial", True)
+            instance = self.get_object()
+            serializer = self.get_serializer(
+                instance,
+                data=request.data,
+                partial=partial,
+            )
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+            return Response(
+                {"detail": "An unexpected error occurred", "error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
