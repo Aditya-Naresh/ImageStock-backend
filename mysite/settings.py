@@ -18,7 +18,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "rest_framework",
-    'rest_framework.authtoken',
+    "rest_framework.authtoken",
     "corsheaders",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "authentication",
+    "stockimage",
 ]
 
 MIDDLEWARE = [
@@ -98,11 +99,24 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
+# media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR/'media'
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "authentication.User"
 
+# RestFramework
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ]
+}
 
 # Email
 EMAIL_BACKEND = env("EMAIL_BACKEND")
