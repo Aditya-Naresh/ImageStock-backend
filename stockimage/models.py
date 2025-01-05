@@ -1,9 +1,17 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 import os
+import uuid
+
 # Create your models here.
 
 User = get_user_model()
+
+
+def get_upload_to(instance, filename):
+    extension = os.path.splitext(filename)[1]
+    new_filename = f"{uuid.uuid4().hex}{extension}"
+    return os.path.join("images/", new_filename)
 
 
 class Image(models.Model):
