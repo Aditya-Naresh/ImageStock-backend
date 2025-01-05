@@ -9,8 +9,8 @@ services:
     environment:
       - DEBUG=True
       - DJANGO_SETTINGS_MODULE=mysite.settings
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://red-ctstd68gph6c738ee8d0:6379
+      - CELERY_RESULT_BACKEND=redis://red-ctstd68gph6c738ee8d0:6379
     depends_on:
       - redis
 
@@ -28,5 +28,5 @@ services:
       - redis
     environment:
       - DJANGO_SETTINGS_MODULE=mysite.settings
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://red-ctstd68gph6c738ee8d0:6379
+      - CELERY_RESULT_BACKEND=redis://red-ctstd68gph6c738ee8d0:6379
