@@ -112,15 +112,11 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
-STATIC_ROOT = "staticfiles"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
-STORAGES = {
-    # ...
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
-}
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
+DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
 # media files
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
