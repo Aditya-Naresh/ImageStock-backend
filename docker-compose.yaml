@@ -9,13 +9,14 @@ services:
     environment:
       - DEBUG=True
       - DJANGO_SETTINGS_MODULE=mysite.settings
-      - CELERY_BROKER_URL=rediss://red-ctstd68gph6c738ee8d0:qVcasI3cTrXWEUAgl98FfVRQRdAJXPV6@oregon-redis.render.com:6379
-      - CELERY_RESULT_BACKEND=rediss://red-ctstd68gph6c738ee8d0:qVcasI3cTrXWEUAgl98FfVRQRdAJXPV6@oregon-redis.render.com:6379
+      - CELERY_BROKER_URL=redis://red-ctstd68gph6c738ee8d0:6379
+      - CELERY_RESULT_BACKEND=redis://red-ctstd68gph6c738ee8d0:6379
       - DB_HOSTNAME=${DB_HOSTNAME}
       - DB_PORT=${DB_PORT}
       - DB_USER=${DB_USER}
       - DB_NAME=${DB_NAME}
       - DB_PASSWORD=${DB_PASSWORD}
+      - DB_URL=${DB_URL}
     depends_on:
       - db
       - redis
@@ -34,8 +35,8 @@ services:
       - redis
     environment:
       - DJANGO_SETTINGS_MODULE=mysite.settings
-      - CELERY_BROKER_URL=rediss://red-ctstd68gph6c738ee8d0:qVcasI3cTrXWEUAgl98FfVRQRdAJXPV6@oregon-redis.render.com:6379
-      - CELERY_RESULT_BACKEND=rediss://red-ctstd68gph6c738ee8d0:qVcasI3cTrXWEUAgl98FfVRQRdAJXPV6@oregon-redis.render.com:6379
+      - CELERY_BROKER_URL=redis://red-ctstd68gph6c738ee8d0:6379
+      - CELERY_RESULT_BACKEND=redis://red-ctstd68gph6c738ee8d0:6379
       - DB_HOSTNAME=${DB_HOSTNAME}
       - DB_PORT=${DB_PORT}
       - DB_USER=${DB_USER}
@@ -49,7 +50,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
