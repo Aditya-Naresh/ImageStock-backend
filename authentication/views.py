@@ -85,6 +85,13 @@ class LoginView(APIView):
             )
 
             if user:
+                if not user.is_verified:
+                    return Response(
+                        {
+                            "message": "Email is not verified",
+                        },
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
                 token, created = Token.objects.get_or_create(user=user)
                 return Response(
                     {
