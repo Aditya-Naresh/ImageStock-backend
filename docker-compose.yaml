@@ -9,9 +9,15 @@ services:
     environment:
       - DEBUG=True
       - DJANGO_SETTINGS_MODULE=mysite.settings
-      - CELERY_BROKER_URL=redis://red-ctstd68gph6c738ee8d0:6379
-      - CELERY_RESULT_BACKEND=redis://red-ctstd68gph6c738ee8d0:6379
+      - CELERY_BROKER_URL=redis://redis:6379
+      - CELERY_RESULT_BACKEND=redis://redis:6379
+      - DB_HOSTNAME=${DB_HOSTNAME}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_NAME=${DB_NAME}
+      - DB_PASSWORD=${DB_PASSWORD}
     depends_on:
+      - db
       - redis
 
   redis:
@@ -28,5 +34,24 @@ services:
       - redis
     environment:
       - DJANGO_SETTINGS_MODULE=mysite.settings
-      - CELERY_BROKER_URL=redis://red-ctstd68gph6c738ee8d0:6379
-      - CELERY_RESULT_BACKEND=redis://red-ctstd68gph6c738ee8d0:6379
+      - CELERY_BROKER_URL=redis://redis:6379
+      - CELERY_RESULT_BACKEND=redis://redis:6379
+      - DB_HOSTNAME=${DB_HOSTNAME}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_NAME=${DB_NAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
