@@ -7,4 +7,4 @@ from .tasks import send_verification_email
 @receiver(post_save, sender=User)
 def send_verification_email_on_register(sender, instance, created, **kwargs):
     if created:
-        send_verification_email(instance.id)
+        send_verification_email.delay(instance.id)
