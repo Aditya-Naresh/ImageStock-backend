@@ -124,6 +124,3 @@ The deployed version of the application can be accessed at [https://imagestock-b
 - `PATCH /api/images/<id>/` - Update image details
 - `DELETE /api/images/<id>/` - Delete an image
 
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
