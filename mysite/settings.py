@@ -1,3 +1,4 @@
+from urllib.parse import urlparse
 from pathlib import Path
 import environ
 
@@ -71,14 +72,18 @@ WSGI_APPLICATION = "mysite.wsgi.application"
 # }
 
 
+# Parse the DATABASE_URL
+url = urlparse(env("DB_URL"))
+
+# Correctly set up the DATABASES dictionary
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": env("DB_NAME"),
-        "USER": env("DB_USER"),
-        "PASSWORD": env("DB_PASSWORD"),
-        "HOST": env("DB_HOSTNAME"),
-        "PORT": "5432",
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': url.path[1:],  # Remove the leading '/' from the path
+        'USER': url.username,
+        'PASSWORD': url.password,
+        'HOST': url.hostname,
+        'PORT': url.port or '5432',  # Default PostgreSQL port
     }
 }
 
@@ -146,7 +151,7 @@ EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 
 
 # Celery
-BROKER_URL = "redis://red-ctstd68gph6c738ee8d0:6379"
+BROKER_URL = "rediss://red-ctstd68gph6c738ee8d0:qVcasI3cTrXWEUAgl98FfVRQRdAJXPV6@oregon-redis.render.com:6379"
 CELERY_BROKER_URL = BROKER_URL
 CELERY_RESULT_BACKEND = BROKER_URL
 CELERY_ACCEPT_CONTENT = ["json"]

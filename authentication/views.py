@@ -110,7 +110,7 @@ class ForgotPasswordView(APIView):
         try:
             if serializer.is_valid(raise_exception=True):
                 email = serializer.validated_data["email"]
-                send_password_reset_link.delay(email)
+                send_password_reset_link(email)
                 return Response(
                     {"message": "Password reset email sent successfully."},
                     status=status.HTTP_200_OK,
